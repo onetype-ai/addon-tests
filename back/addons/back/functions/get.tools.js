@@ -2,10 +2,18 @@
 
 import tests from '#tests/back/addon.js';
 
-tests.back.Fn('get.tools', function(failed, built)
+tests.back.Fn('get.tools', function(failed, connection = 'primary')
 {
+    this.database = () =>
+    {
+        const database = onetype.AddonGet('database');
+        const item = database ? database.ItemGet(connection) : null;
+
+        return item ? item.Get('connection') : null;
+    };
+
     return {
         assert: tests.Fn('get.assert', failed),
-        database: built ? built.knex : null
+        database: this.database()
     };
 });

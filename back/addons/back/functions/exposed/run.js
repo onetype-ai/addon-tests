@@ -15,16 +15,8 @@ tests.back.FnExpose('run', async function(addon = null)
     this.once = async (item) =>
     {
         const failed = [];
-        const built = this.Fn('get.database');
 
-        try
-        {
-            return await tests.Fn('run.one', item, this.Fn('get.tools', failed, built), failed);
-        }
-        finally
-        {
-            built && await built.knex.destroy();
-        }
+        return tests.Fn('run.one', item, this.Fn('get.tools', failed), failed);
     };
 
     const results = [];
