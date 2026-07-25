@@ -3,7 +3,12 @@
 import tests from '#tests/back/addon.js';
 
 import '#tests/back/functions/get.assert.js';
+import '#tests/back/functions/get.lines.js';
+import '#tests/back/functions/get.wanted.js';
+import '#tests/back/functions/get.written.js';
 import '#tests/back/functions/run.one.js';
+
+import '#tests/back/items/canon/reach/tests.js';
 
 import '#tests/back/addons/back/load.js';
 import '#tests/back/addons/front/load.js';
