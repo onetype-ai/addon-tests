@@ -8,4 +8,4 @@ tests.FnExpose('run', async function(addon = null)
     const front = await tests.front.run(addon);
 
     return back.concat(front);
-});
+}, 'Runs both sides and answers one report per test, back first.');

@@ -34,4 +34,4 @@ tests.front.FnExpose('run', async function(addon = null)
     }
 
     return results;
-});
+}, 'Runs the tests written against the front, each on a page of its own.');

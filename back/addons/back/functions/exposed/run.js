@@ -19,4 +19,4 @@ tests.back.FnExpose('run', async function(addon = null)
     }
 
     return results;
-});
+}, 'Runs the tests written against the back and answers one report per test.');
