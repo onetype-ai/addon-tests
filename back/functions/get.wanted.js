@@ -4,6 +4,11 @@ import tests from '#tests/back/addon.js';
 
 tests.Fn('get.wanted', function(lines)
 {
+    if(lines < 100)
+    {
+        return 0;
+    }
+
     if(lines < 200)
     {
         return 2;

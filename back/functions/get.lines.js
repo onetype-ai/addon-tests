@@ -4,22 +4,19 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import tests from '#tests/back/addon.js';
 
-tests.Fn('get.lines', function(root)
+tests.Fn('get.lines', function(root, side)
 {
-    this.files = (side) =>
-    {
-        const base = join(root, side);
-
-        return existsSync(base) ? onetype.assets.read(base) : [];
-    };
-
     this.counted = (file) =>
     {
         return readFileSync(file, 'utf8').split('\n').length;
     };
 
-    const written = this.files('back').concat(this.files('front'));
-    const proving = this.files('tests');
+    const base = join(root, side);
 
-    return written.filter((file) => !proving.includes(file)).reduce((total, file) => total + this.counted(file), 0);
+    if(!existsSync(base))
+    {
+        return 0;
+    }
+
+    return onetype.assets.read(base).reduce((total, file) => total + this.counted(file), 0);
 });

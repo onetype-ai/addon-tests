@@ -1,24 +1,32 @@
 // This file is part of OneType. Created and led by Dejan Tomic <hi@iamdejan.com>, co-authored by Stefan Pakic, onetype.ai
 
+import { join } from 'path';
 import tests from '#tests/back/addon.js';
 
 onetype.AddonReady('canon.reach', (reach) =>
 {
     reach.Item({
         id: 'tests',
-        description: 'A package under two hundred lines carries two tests, up to a thousand five, past that ten, the floor and never the target.',
+        description: 'Each side answers for itself, a hundred lines asking two tests, two hundred five, a thousand ten, the floor and never the target.',
         check: (root, alias, report) =>
         {
-            const lines = tests.Fn('get.lines', root);
-            const wanted = tests.Fn('get.wanted', lines);
-            const written = tests.Fn('get.written', root);
-
-            if(written >= wanted)
+            const side = (name) =>
             {
-                return;
-            }
+                const lines = tests.Fn('get.lines', root, name);
+                const wanted = tests.Fn('get.wanted', lines);
+                const written = tests.Fn('get.written', root, name);
 
-            report(root, lines + ' lines carry ' + written + ' tests, the canon asks for ' + wanted + ' at the least.');
+                if(written >= wanted)
+                {
+                    return;
+                }
+
+                report(join(root, name), lines + ' lines of ' + name + ' carry ' + written
+                    + ' tests, the canon asks for ' + wanted + ' at the least.');
+            };
+
+            side('back');
+            side('front');
         }
     });
 });

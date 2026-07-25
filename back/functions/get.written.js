@@ -4,21 +4,21 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import tests from '#tests/back/addon.js';
 
-tests.Fn('get.written', function(root)
+tests.Fn('get.written', function(root, side)
 {
-    this.files = () =>
-    {
-        const base = join(root, 'tests');
-
-        return existsSync(base) ? onetype.assets.read(base) : [];
-    };
-
     this.counted = (file) =>
     {
-        const found = readFileSync(file, 'utf8').match(/tests\.(back|front)\.Item\(/g);
+        const found = readFileSync(file, 'utf8').match(new RegExp('tests\\.' + side + '\\.Item\\(', 'g'));
 
         return found ? found.length : 0;
     };
 
-    return this.files().reduce((total, file) => total + this.counted(file), 0);
+    const base = join(root, 'tests');
+
+    if(!existsSync(base))
+    {
+        return 0;
+    }
+
+    return onetype.assets.read(base).reduce((total, file) => total + this.counted(file), 0);
 });
