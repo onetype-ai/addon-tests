@@ -3,7 +3,7 @@
 Tests is the proof that the rest still works. A test is a registered item like everything else in OneType: it names the addon it covers, says in one sentence what it proves, and carries a callback that either passes or reports why not. Back tests run in the process they are written in. Front tests get a DOM of their own, with the real front bundle inside it, so a directive, an element, a click or a whole login flow can be proven without a browser.
 
 - Package: `@onetype/addon-tests`, slug `onetype/addon/tests`
-- Depends on: `onetype/addon/assets`, which knows how the front bundle is ordered. Supports `onetype/addon/database`, reading whatever connection it holds. Uses `happy-dom` for the front page.
+- Depends on: nothing. The front bundle is read straight from `onetype.assets`, the runtime every addon registers its front folder with. Uses `happy-dom` for the front page.
 - Sides: `back/` only — the front is tested from the back, not shipped to it
 
 ## A back test
@@ -25,27 +25,27 @@ tests.back.Item({
 
 Nothing is mocked. The command is the real command, the envelope is the real envelope. `assert` offers `equal`, `truthy`, `falsy`, `match` and `throws`, and every failed assertion is collected rather than thrown, so one test reports everything wrong with it at once.
 
-## A back test with a database
+## A back test that touches a database
 
-When `onetype/addon/database` is present every back test is handed `database`, the live knex of the connection registered as `primary`.
+Tests knows nothing about databases. A test that needs one reaches for it the way the rest of the application does — through the addon that owns the table:
 
 ```js
 tests.back.Item({
-    id: 'database.creates',
-    addon: 'database',
-    description: 'A row written through the addon comes back out.',
-    callback: async function({ assert, database })
+    id: 'users.create.writes',
+    addon: 'users',
+    description: 'A user created through the addon comes back out.',
+    callback: async function({ assert })
     {
-        await database('users').insert({ name: 'Ana' });
+        await users.Item({ name: 'Ana' }).Create();
 
-        const rows = await database('users').select('*');
+        const rows = await users.Find().filter('name', 'Ana').many();
 
         assert.equal(rows.length, 1, 'rows');
     }
 });
 ```
 
-Tests neither creates that connection nor changes it. The application decides what a run connects to, which makes a `tests.js` beside `index.js` the place to say so:
+That keeps the test honest: it proves the addon works, not that a query ran. Which database it lands on is the application's call, which makes a `tests.js` beside `index.js` the place to say so:
 
 ```js
 import '@onetype/platform/server';
@@ -67,7 +67,7 @@ const results = await tests.back.run();
 
 `onConnect` runs behind the schema sync queued at the moment the connection is registered, so it sees the tables of every addon loaded before that line and none of the ones loaded after it. Registering the connection after the application — the import above the `database.Item` call — is what puts the tables in front of the seed. Where an addon arrives later, its table is missing and the seed reports `Connection primary broke its onConnect` rather than failing silently.
 
-The database is shared across the tests in a run, so a test names its own rows rather than counting on an empty table. Without the database addon `database` is `null` and everything else works as before.
+The database is shared across the tests in a run, so a test names its own rows rather than counting on an empty table.
 
 ## A front test
 
@@ -162,4 +162,4 @@ There is no layout in the page, so `getBoundingClientRect` reads zero and anythi
 - A test is an item, so the set is inspectable and every test names the addon it covers.
 - Every failed assertion is collected, so one run tells you everything that is wrong.
 - Each front test gets a fresh page, so no front test can be broken or saved by the one before it.
-- Tests never starts a database of its own, so a run reaches exactly what the application handed it and nothing else.
+- Tests depends on no addon and knows about no database. A test reaches the application through the same surface everything else does, so what it proves is what a caller would get.

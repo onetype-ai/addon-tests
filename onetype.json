@@ -6,10 +6,5 @@
     "icon": "science",
     "color": "rgba(34, 197, 94, 1)",
     "status": "enabled",
-    "depends": [
-        "onetype/addon/assets"
-    ],
-    "supports": [
-        "onetype/addon/database"
-    ]
+    "depends": []
 }
