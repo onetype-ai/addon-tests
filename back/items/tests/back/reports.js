@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.back', (tests) =>
 {
     tests.Item({
-        id: 'back/reports',
+        id: 'tests:back/reports',
         addon: 'tests',
         description: 'A run answers one report per test naming what it covered, whether it held, what broke and what threw.',
         callback: async function({ assert })

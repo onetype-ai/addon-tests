@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.back', (tests) =>
 {
     tests.Item({
-        id: 'back/asserts',
+        id: 'tests:back/asserts',
         addon: 'tests',
         description: 'Every check collects a sentence naming what it read and what it wanted, and a passing check says nothing at all.',
         callback: async function({ assert })

@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.back', (tests) =>
 {
     tests.Item({
-        id: 'back/counts',
+        id: 'tests:back/counts',
         addon: 'tests',
         description: 'The floor a package answers to rises with its size, each side counted apart, and the tests proving a package never count as the package.',
         callback: function({ assert })

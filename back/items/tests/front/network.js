@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.front', (tests) =>
 {
     tests.Item({
-        id: 'front/network',
+        id: 'tests:front/network',
         addon: 'tests',
         description: 'A page answers fetch from the routes the test named, records every call it took, and refuses the ones nobody claimed.',
         callback: async function({ network, eval: read, assert })

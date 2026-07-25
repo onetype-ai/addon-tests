@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.front', (tests) =>
 {
     tests.Item({
-        id: 'front/tools',
+        id: 'tests:front/tools',
         addon: 'tests',
         description: 'A front test opens on a page of its own carrying the real bundle, and every action it takes settles before the next line reads the dom.',
         callback: async function({ mount, run, click, type, visit, back, eval: read, dom, assert })

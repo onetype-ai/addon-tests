@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.front', (tests) =>
 {
     tests.Item({
-        id: 'front/isolated',
+        id: 'tests:front/isolated',
         addon: 'tests',
         description: 'The test running after another opens on a page of its own, holding neither the nodes nor the flags the one before it left.',
         callback: async function({ eval: read, assert })

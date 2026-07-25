@@ -3,7 +3,7 @@
 onetype.AddonReady('tests.front', (tests) =>
 {
     tests.Item({
-        id: 'front/checks',
+        id: 'tests:front/checks',
         addon: 'tests',
         description: 'Every dom check reads the page and names what it found against what the test wanted, and a page carries nothing the test before it left.',
         callback: async function({ mount, eval: read, assert })
