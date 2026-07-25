@@ -4,25 +4,8 @@ import tests from '#tests/back/addon.js';
 
 tests.Fn('get.wanted', function(lines)
 {
-    if(lines < 50)
-    {
-        return 0;
-    }
+    const bands = [[50, 0], [200, 1], [1001, 2], [5001, 5]];
+    const band = bands.find((entry) => lines < entry[0]);
 
-    if(lines < 200)
-    {
-        return 1;
-    }
-
-    if(lines <= 1000)
-    {
-        return 2;
-    }
-
-    if(lines <= 5000)
-    {
-        return 5;
-    }
-
-    return 10;
+    return band ? band[1] : 10;
 });

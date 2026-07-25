@@ -17,4 +17,13 @@ import '#tests/back/items/canon/patterns/tests.back.js';
 import '#tests/back/items/canon/patterns/tests.front.js';
 import '#tests/back/items/canon/reach/tests.js';
 
+import '#tests/back/items/tests/back/asserts.js';
+import '#tests/back/items/tests/back/counts.js';
+import '#tests/back/items/tests/back/reports.js';
+import '#tests/back/items/tests/back/runs.js';
+import '#tests/back/items/tests/front/checks.js';
+import '#tests/back/items/tests/front/isolated.js';
+import '#tests/back/items/tests/front/network.js';
+import '#tests/back/items/tests/front/tools.js';
+
 export default tests;

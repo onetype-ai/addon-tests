@@ -36,7 +36,7 @@ tests.Fn('get.report', async function(item, tools, failed)
     {
         try
         {
-            await item.Get('callback').call(item, tools);
+            await item.Get('callback').call({}, tools);
 
             return this.report(null);
         }

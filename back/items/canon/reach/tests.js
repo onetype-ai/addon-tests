@@ -7,7 +7,7 @@ onetype.AddonReady('canon.reach', (reach) =>
 {
     reach.Item({
         id: 'tests',
-        description: 'Each side answers for itself, fifty lines asking one test, two hundred two, a thousand five, five thousand ten, the floor and never the target.',
+        description: 'Each side answers for itself, fifty lines asking one test, two hundred two, a thousand five, five thousand ten, a floor not a target.',
         check: (root, alias, report) =>
         {
             const side = (name) =>

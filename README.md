@@ -4,44 +4,79 @@ Tests is the proof that the rest still works. A test is a registered item like e
 
 - Package: `@onetype/addon-tests`, slug `onetype/addon/tests`
 - Depends on: nothing. The front bundle is read straight from `onetype.assets`, the runtime every addon registers its front folder with. Uses `happy-dom` for the front page.
-- Sides: `back/` only — the front is tested from the back, not shipped to it
+- Sides: `back/` only: the front is tested from the back, not shipped to it
 
-## A back test
+## Where a test lives
+
+A test is an item like everything else, so it lives with the other items, in `back/items/tests/` under the side it proves:
+
+```
+back/items/tests/back/validates.js
+back/items/tests/front/renders.js
+```
+
+Both sides register from the back. `tests.front` names what a test proves, not where it runs: a front test runs in the process like any other, opening a DOM of its own from there. Nothing under `items/tests/` reaches the browser bundle.
 
 ```js
-tests.back.Item({
-    id: 'commands.run.validates',
-    addon: 'commands',
-    description: 'A command rejects input its schema does not allow.',
-    callback: async function({ assert })
-    {
-        const result = await commands.run('greet', {});
+onetype.AddonReady('tests.back', (tests) =>
+{
+    tests.Item({
+        id: 'back/validates',
+        addon: 'commands',
+        description: 'A command rejects input its schema does not allow.',
+        callback: async function({ assert })
+        {
+            const result = await commands.run('greet', {});
 
-        assert.equal(result.code, 400, 'code');
-        assert.match(result.message, 'name', 'message');
-    }
+            assert.equal(result.code, 400, 'code');
+            assert.match(result.message, 'name', 'message');
+        }
+    });
 });
 ```
 
 Nothing is mocked. The command is the real command, the envelope is the real envelope. `assert` offers `equal`, `truthy`, `falsy`, `match` and `throws`, and every failed assertion is collected rather than thrown, so one test reports everything wrong with it at once.
 
-## A back test that touches a database
-
-Tests knows nothing about databases. A test that needs one reaches for it the way the rest of the application does — through the addon that owns the table:
+A long test names its steps on `this` and closes by calling them, the way the canon asks of any function. The `this` a callback runs on is its own, so a step may take any name without touching the item behind it:
 
 ```js
-tests.back.Item({
-    id: 'users.create.writes',
-    addon: 'users',
-    description: 'A user created through the addon comes back out.',
-    callback: async function({ assert })
+callback: async function({ mount, assert })
+{
+    this.mounted = async () =>
     {
-        await users.Item({ name: 'Ana' }).Create();
+        await mount('<p id="a">one</p>');
+    };
 
-        const rows = await users.Find().filter('name', 'Ana').many();
+    this.reads = () =>
+    {
+        assert.text('#a', 'one', 'the markup mounted');
+    };
 
-        assert.equal(rows.length, 1, 'rows');
-    }
+    await this.mounted();
+    this.reads();
+}
+```
+
+## A back test that touches a database
+
+Tests knows nothing about databases. A test that needs one reaches for it the way the rest of the application does: through the addon that owns the table:
+
+```js
+onetype.AddonReady('tests.back', (tests) =>
+{
+    tests.Item({
+        id: 'back/writes',
+        addon: 'users',
+        description: 'A user created through the addon comes back out.',
+        callback: async function({ assert })
+        {
+            await users.Item({ name: 'Ana' }).Create();
+
+            const rows = await users.Find().filter('name', 'Ana').many();
+
+            assert.equal(rows.length, 1, 'rows');
+        }
+    });
 });
 ```
 
@@ -65,23 +100,26 @@ const results = await tests.back.run();
 
 `type: 'memory'` runs Postgres inside this process and never reaches the network. It is a real engine, not a stand-in: a unique constraint throws on a duplicate, and the Postgres syntax the addon leans on behaves as it does on a server.
 
-`onConnect` runs behind the schema sync queued at the moment the connection is registered, so it sees the tables of every addon loaded before that line and none of the ones loaded after it. Registering the connection after the application — the import above the `database.Item` call — is what puts the tables in front of the seed. Where an addon arrives later, its table is missing and the seed reports `Connection primary broke its onConnect` rather than failing silently.
+`onConnect` runs behind the schema sync queued at the moment the connection is registered, so it sees the tables of every addon loaded before that line and none of the ones loaded after it. Registering the connection after the application, with the import standing above the `database.Item` call, is what puts the tables in front of the seed. Where an addon arrives later, its table is missing and the seed reports `Connection primary broke its onConnect` rather than failing silently.
 
 The database is shared across the tests in a run, so a test names its own rows rather than counting on an empty table.
 
 ## A front test
 
 ```js
-tests.front.Item({
-    id: 'directives.if.hides',
-    addon: 'directives',
-    description: 'ot-if leaves the node out when its expression is false.',
-    callback: async function({ mount, assert })
-    {
-        await mount('<p id="a" ot-if="show">here</p>', { show: false });
+onetype.AddonReady('tests.front', (tests) =>
+{
+    tests.Item({
+        id: 'front/hides',
+        addon: 'directives',
+        description: 'ot-if leaves the node out when its expression is false.',
+        callback: async function({ mount, assert })
+        {
+            await mount('<p id="a" ot-if="show">here</p>', { show: false });
 
-        assert.missing('#a');
-    }
+            assert.missing('#a', 'the node stayed out');
+        }
+    });
 });
 ```
 
@@ -102,14 +140,16 @@ Every front test opens its own page: a DOM, the whole front bundle assembled fro
 
 | Asking | |
 | --- | --- |
-| `assert.text(selector, expected)` | The node reads exactly this. |
-| `assert.contains(selector, needle)` | The node holds this somewhere. |
-| `assert.exists(selector)` | Something matches. |
-| `assert.missing(selector)` | Nothing matches. |
-| `assert.count(selector, expected)` | This many match. |
-| `assert.attribute(selector, name, expected)` | The attribute reads this. |
-| `assert.path(expected)` | The page sits at this path. |
+| `assert.text(selector, expected, note)` | The node reads exactly this. |
+| `assert.contains(selector, needle, note)` | The node holds this somewhere. |
+| `assert.exists(selector, note)` | Something matches. |
+| `assert.missing(selector, note)` | Nothing matches. |
+| `assert.count(selector, expected, note)` | This many match. |
+| `assert.attribute(selector, name, expected, note)` | The attribute reads this. |
+| `assert.path(expected, note)` | The page sits at this path. |
 | `dom()` and `eval(source)` | The raw way out, for whatever the helpers do not cover. |
+
+Every check takes a closing `note`, and where one is given it opens the failure: `the flag did not cross: #a reads "one", the test expects "two".` Leave it off and the sentence stands on its own.
 
 Every action settles on its own, so a click is followed by the render it caused before the next line reads the DOM.
 
@@ -134,11 +174,12 @@ Arguments travel, closures do not.
 ## Running them
 
 ```js
-const results = await tests.back.run();
+const back = await tests.back.run();
 const front = await tests.front.run('directives');
+const both = await tests.run();
 ```
 
-Called bare, a run covers every test it holds. Given an addon name, it covers that addon alone. Each result names the test, says whether it passed, and lists what failed:
+Each side runs its own. `tests.run` walks both and answers them together, back first. Called bare, a run covers every test it holds. Given an addon name, it covers that addon alone. Each result names the test, says whether it passed, and lists what failed:
 
 ```js
 {
@@ -153,9 +194,25 @@ Called bare, a run covers every test it holds. Given an addon name, it covers th
 
 A test that throws is caught: the run continues and the error lands in `error`. A test with `skip` set never runs and says so in its report, so a skipped test stays visible instead of quietly disappearing.
 
+## The floor a package answers to
+
+With `@onetype/addon-canon` present, tests hands it three rules of its own. One counts: each side of a package answers for the tests written against it, and the count it owes rises with its size.
+
+| Lines on a side | Tests it asks for |
+| --- | --- |
+| under 50 | none |
+| 50 to 199 | 1 |
+| 200 to 1000 | 2 |
+| 1001 to 5000 | 5 |
+| over 5000 | 10 |
+
+The sides are counted apart, so a package with nine lines of back and three thousand of front cannot answer for the front with back tests. The lines under `items/tests/` never count as the package they prove. The number is a floor and not a target: it is the count below which a package cannot claim to be tested.
+
+The other two are patterns claiming `items/tests/back` and `items/tests/front`, which is what lets a test register whatever it needs to make its point without that reading as a second declaration.
+
 ## What it cannot prove
 
-There is no layout in the page, so `getBoundingClientRect` reads zero and anything that measures geometry — a flip animation, a resize handle, a sort by position — needs a real browser. Everything that is logic, markup, state, events or navigation is fair ground.
+There is no layout in the page, so `getBoundingClientRect` reads zero and anything that measures geometry, a flip animation, a resize handle, a sort by position, needs a real browser. Everything that is logic, markup, state, events or navigation is fair ground.
 
 ## Guarantees
 

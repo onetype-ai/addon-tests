@@ -4,9 +4,9 @@ import tests from '#tests/back/addon.js';
 
 tests.front.Fn('get.checks', function(page, failed)
 {
-    this.fail = (message) =>
+    this.fail = (message, note = '') =>
     {
-        failed.push(message);
+        failed.push(note ? note + ': ' + message : message);
     };
 
     this.node = (selector) =>
@@ -22,45 +22,47 @@ tests.front.Fn('get.checks', function(page, failed)
     };
 
     return {
-        text: (selector, expected) =>
+        text: (selector, expected, note = '') =>
         {
             const found = this.text(selector);
 
-            found === expected || this.fail(selector + ' reads ' + JSON.stringify(found) + ', the test expects ' + JSON.stringify(expected) + '.');
+            found === expected || this.fail(selector + ' reads ' + JSON.stringify(found)
+                + ', the test expects ' + JSON.stringify(expected) + '.', note);
         },
-        contains: (selector, needle) =>
+        contains: (selector, needle, note = '') =>
         {
             const found = this.text(selector);
 
-            String(found).includes(needle) || this.fail(selector + ' reads ' + JSON.stringify(found) + ', the test looks for ' + JSON.stringify(needle) + '.');
+            String(found).includes(needle) || this.fail(selector + ' reads ' + JSON.stringify(found)
+                + ', the test looks for ' + JSON.stringify(needle) + '.', note);
         },
-        exists: (selector) =>
+        exists: (selector, note = '') =>
         {
-            this.node(selector) || this.fail(selector + ' matches nothing, the test expects it on the page.');
+            this.node(selector) || this.fail(selector + ' matches nothing, the test expects it on the page.', note);
         },
-        missing: (selector) =>
+        missing: (selector, note = '') =>
         {
-            this.node(selector) && this.fail(selector + ' is on the page, the test expects it gone.');
+            this.node(selector) && this.fail(selector + ' is on the page, the test expects it gone.', note);
         },
-        count: (selector, expected) =>
+        count: (selector, expected, note = '') =>
         {
             const found = page.document.querySelectorAll(selector).length;
 
-            found === expected || this.fail(selector + ' matches ' + found + ' nodes, the test expects ' + expected + '.');
+            found === expected || this.fail(selector + ' matches ' + found + ' nodes, the test expects ' + expected + '.', note);
         },
-        attribute: (selector, name, expected) =>
+        attribute: (selector, name, expected, note = '') =>
         {
             const node = this.node(selector);
             const found = node ? node.getAttribute(name) : null;
 
             found === expected || this.fail(selector + ' carries ' + name + '=' + JSON.stringify(found)
-                + ', the test expects ' + JSON.stringify(expected) + '.');
+                + ', the test expects ' + JSON.stringify(expected) + '.', note);
         },
-        path: (expected) =>
+        path: (expected, note = '') =>
         {
             const found = page.eval('location.pathname');
 
-            found === expected || this.fail('The page sits at ' + found + ', the test expects ' + expected + '.');
+            found === expected || this.fail('The page sits at ' + found + ', the test expects ' + expected + '.', note);
         }
     };
 });
