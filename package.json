@@ -1,0 +1,16 @@
+{
+    "name": "@onetype/addon-tests",
+    "version": "0.1.0",
+    "type": "module",
+    "main": "./back/load.js",
+    "imports": {
+        "#tests/*": "./*"
+    },
+    "exports": {
+        ".": "./back/load.js",
+        "./*": "./*"
+    },
+    "dependencies": {
+        "happy-dom": "^20.11.1"
+    }
+}

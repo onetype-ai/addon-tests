@@ -1,0 +1,12 @@
+{
+    "type": "addon",
+    "slug": "onetype/addon/tests",
+    "name": "Tests",
+    "description": "Runs registered tests over the back and, through a DOM of its own, over the front, so every element, directive, page and command proves it still works.",
+    "icon": "science",
+    "color": "rgba(34, 197, 94, 1)",
+    "status": "enabled",
+    "depends": [
+        "onetype/addon/assets"
+    ]
+}
