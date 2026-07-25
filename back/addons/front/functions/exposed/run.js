@@ -4,14 +4,6 @@ import tests from '#tests/back/addon.js';
 
 tests.front.FnExpose('run', async function(addon = null)
 {
-    this.wanted = () =>
-    {
-        return Object.values(this.Items()).filter((item) =>
-        {
-            return addon ? item.Get('addon') === addon : true;
-        });
-    };
-
     this.tools = (page, failed) =>
     {
         return Object.assign(this.Fn('get.tools', page, failed), {
@@ -26,7 +18,7 @@ tests.front.FnExpose('run', async function(addon = null)
 
         try
         {
-            return await tests.Fn('run.one', item, this.tools(page, failed), failed);
+            return await tests.Fn('get.report', item, this.tools(page, failed), failed);
         }
         finally
         {
@@ -36,7 +28,7 @@ tests.front.FnExpose('run', async function(addon = null)
 
     const results = [];
 
-    for(const item of this.wanted())
+    for(const item of tests.Fn('get.picked', this, addon))
     {
         results.push(await this.once(item));
     }

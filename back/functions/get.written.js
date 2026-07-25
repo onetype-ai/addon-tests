@@ -8,12 +8,12 @@ tests.Fn('get.written', function(root, side)
 {
     this.counted = (file) =>
     {
-        const found = readFileSync(file, 'utf8').match(new RegExp('tests\\.' + side + '\\.Item\\(', 'g'));
+        const found = readFileSync(file, 'utf8').match(/tests\.Item\(/g);
 
         return found ? found.length : 0;
     };
 
-    const base = join(root, 'tests');
+    const base = join(root, 'back', 'items', 'tests', side);
 
     if(!existsSync(base))
     {

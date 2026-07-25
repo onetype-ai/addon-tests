@@ -1,11 +1,16 @@
 // This file is part of OneType. Created and led by Dejan Tomic <hi@iamdejan.com>, co-authored by Stefan Pakic, onetype.ai
 
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, sep } from 'path';
 import tests from '#tests/back/addon.js';
 
 tests.Fn('get.lines', function(root, side)
 {
+    this.proving = (file) =>
+    {
+        return file.includes(sep + 'items' + sep + 'tests' + sep);
+    };
+
     this.counted = (file) =>
     {
         return readFileSync(file, 'utf8').split('\n').length;
@@ -18,5 +23,7 @@ tests.Fn('get.lines', function(root, side)
         return 0;
     }
 
-    return onetype.assets.read(base).reduce((total, file) => total + this.counted(file), 0);
+    return onetype.assets.read(base)
+        .filter((file) => !this.proving(file))
+        .reduce((total, file) => total + this.counted(file), 0);
 });

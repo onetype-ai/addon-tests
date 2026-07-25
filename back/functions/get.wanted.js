@@ -4,17 +4,22 @@ import tests from '#tests/back/addon.js';
 
 tests.Fn('get.wanted', function(lines)
 {
-    if(lines < 100)
+    if(lines < 50)
     {
         return 0;
     }
 
     if(lines < 200)
     {
-        return 2;
+        return 1;
     }
 
     if(lines <= 1000)
+    {
+        return 2;
+    }
+
+    if(lines <= 5000)
     {
         return 5;
     }

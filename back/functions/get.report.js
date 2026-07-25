@@ -2,7 +2,7 @@
 
 import tests from '#tests/back/addon.js';
 
-tests.Fn('run.one', async function(item, tools, failed)
+tests.Fn('get.report', async function(item, tools, failed)
 {
     this.named = () =>
     {

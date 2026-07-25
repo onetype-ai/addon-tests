@@ -12,9 +12,19 @@ tests.front.Fn('get.bundle', function()
             .filter(Boolean);
     };
 
+    this.shipped = (file) =>
+    {
+        if(file.endsWith('.back.js'))
+        {
+            return false;
+        }
+
+        return !file.includes('/items/tests/');
+    };
+
     this.sort = (files, folders) =>
     {
-        const kept = files.filter((file) => !file.endsWith('.back.js'));
+        const kept = files.filter((file) => this.shipped(file));
         const first = this.opening(kept);
 
         first.forEach((file) => kept.splice(kept.indexOf(file), 1));
