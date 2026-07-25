@@ -17,8 +17,6 @@ tests.back.Fn('get.database', function()
 
     this.swap = (database, knex) =>
     {
-        database.ItemOn('add', (item) => item.Set('connection', knex));
-
         Object.values(database.Items()).forEach((item) => item.Set('connection', knex));
     };
 
@@ -26,11 +24,14 @@ tests.back.Fn('get.database', function()
 
     if(!database)
     {
+        this.StoreSet('connection', null);
+
         return null;
     }
 
     const built = this.built();
 
+    this.StoreSet('connection', built.knex);
     this.swap(database, built.knex);
 
     return built;
