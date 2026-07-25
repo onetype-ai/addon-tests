@@ -4,6 +4,8 @@ onetype.AddonReady('tests', (tests) =>
 {
     tests.front = onetype.Addon('tests.front', (addon) =>
     {
+        addon.Description('Holds the tests that open a dom of their own, each handed a page carrying the real front bundle.');
+
         addon.Field('id', {
             type: 'string',
             required: true,

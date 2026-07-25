@@ -4,6 +4,8 @@ onetype.AddonReady('tests', (tests) =>
 {
     tests.back = onetype.Addon('tests.back', (addon) =>
     {
+        addon.Description('Holds the tests that run in the process, each handed the checks it needs and nothing else.');
+
         addon.Field('id', {
             type: 'string',
             required: true,
