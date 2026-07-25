@@ -8,5 +8,8 @@
     "status": "enabled",
     "depends": [
         "onetype/addon/assets"
+    ],
+    "supports": [
+        "onetype/addon/database"
     ]
 }

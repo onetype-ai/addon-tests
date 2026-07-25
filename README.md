@@ -3,7 +3,7 @@
 Tests is the proof that the rest still works. A test is a registered item like everything else in OneType: it names the addon it covers, says in one sentence what it proves, and carries a callback that either passes or reports why not. Back tests run in the process they are written in. Front tests get a DOM of their own, with the real front bundle inside it, so a directive, an element, a click or a whole login flow can be proven without a browser.
 
 - Package: `@onetype/addon-tests`, slug `onetype/addon/tests`
-- Depends on: `onetype/addon/assets`, which knows how the front bundle is ordered. Uses `happy-dom` for the front page.
+- Depends on: `onetype/addon/assets`, which knows how the front bundle is ordered. Supports `onetype/addon/database`, swapping it for a Postgres in memory when it is there. Uses `happy-dom` for the front page and `pg-mem` for the database.
 - Sides: `back/` only — the front is tested from the back, not shipped to it
 
 ## A back test
@@ -24,6 +24,36 @@ tests.back.Item({
 ```
 
 Nothing is mocked. The command is the real command, the envelope is the real envelope. `test.assert` offers `equal`, `truthy`, `falsy`, `match` and `throws`, and every failed assertion is collected rather than thrown, so one test reports everything wrong with it at once.
+
+## A back test with a database
+
+When `onetype/addon/database` is present every back test is handed `test.database`, a knex pointing at a Postgres held in memory. The registered connections are swapped to it before the test runs, so a command that reaches for the primary connection reaches the test one instead and never touches a real server.
+
+```js
+tests.back.Item({
+    id: 'database.creates',
+    addon: 'database',
+    description: 'A row written through the addon comes back out.',
+    callback: async function(test)
+    {
+        await test.database.schema.createTable('users', (table) =>
+        {
+            table.increments('id');
+            table.string('name');
+        });
+
+        await test.database('users').insert({ name: 'Ana' });
+
+        const rows = await test.database('users').select('*');
+
+        test.assert.equal(rows.length, 1);
+    }
+});
+```
+
+It is a real engine, not a stand-in: a unique constraint throws on a duplicate, and Postgres syntax the addon leans on, `ILIKE` included, behaves as it does on a server. Each test gets its own database, so a table one test builds is gone by the next and the order they run in changes nothing.
+
+Without the database addon `test.database` is `null` and everything else works as before.
 
 ## A front test
 
@@ -128,4 +158,5 @@ There is no layout in the page, so `getBoundingClientRect` reads zero and anythi
 
 - A test is an item, so the set is inspectable and every test names the addon it covers.
 - Every failed assertion is collected, so one run tells you everything that is wrong.
-- Each front test gets a fresh page, so no test can be broken or saved by the one before it.
+- Each front test gets a fresh page and each back test a fresh database, so no test can be broken or saved by the one before it.
+- A test never reaches a real server: the database is held in memory and the page answers fetch from what the test told it to.

@@ -2,4 +2,6 @@
 
 import '#tests/back/addons/back/addon.js';
 
+import '#tests/back/addons/back/functions/get.database.js';
+import '#tests/back/addons/back/functions/get.tools.js';
 import '#tests/back/addons/back/functions/exposed/run.js';

@@ -12,11 +12,19 @@ tests.back.FnExpose('run', async function(addon = null)
         });
     };
 
-    this.once = (item) =>
+    this.once = async (item) =>
     {
         const failed = [];
+        const built = this.Fn('get.database');
 
-        return tests.Fn('run.one', item, { assert: tests.Fn('get.assert', failed) }, failed);
+        try
+        {
+            return await tests.Fn('run.one', item, this.Fn('get.tools', failed, built), failed);
+        }
+        finally
+        {
+            built && await built.knex.destroy();
+        }
     };
 
     const results = [];
